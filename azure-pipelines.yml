@@ -1,19 +1,27 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- master
+  - master
 
-pool:
-  vmImage: ubuntu-latest
-
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+jobs:
+  - job: android
+    pool:
+      vmImage: "macos-latest"
+    variables:
+      - group: secrets
+      - group: general
+      - name: androidReleaseDir
+        value: $(build.artifactStagingDirectory)/build/app/outputs/flutter-apk
+      - name: apkFile
+        value: $(androidReleaseDir)/app-release.apk
+    steps:
+      - task: FlutterInstall@0
+        displayName: "Install Flutter"
+        inputs:
+          
+          channel: "stable"
+          version: "custom"
+          customVersion: "2.2.3"
+      - task: FlutterBuild@0
+        inputs:
+          target: apk
+          projectDirectory: "."
+          buildNumber: ""
